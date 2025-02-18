@@ -26,32 +26,32 @@ public class Servidor implements Runnable {
             System.out.println("(Servidor) " + mensaje);
             socketServidor.close();
 
-            // 🔹 1️⃣ PASO 1: Ejecutar mysqldump en la VM de Azure
+            // PASO 1: Ejecutar mysqldump en la VM de Azure
             String sshCommand = "ssh administrador@40.89.147.152 \"mysqldump -u root --password=1234 --databases adt_grupoA > /home/administrador/backup.sql\"";
             System.out.println("Ejecutando: " + sshCommand);
 
             if (ejecutarComando(sshCommand)) {
-                System.out.println("✅ Backup realizado correctamente en el servidor remoto.");
+                System.out.println("Backup realizado correctamente en el servidor remoto.");
             } else {
-                System.err.println("❌ Error al realizar el backup en el servidor remoto.");
+                System.err.println("Error al realizar el backup en el servidor remoto.");
                 return;
             }
 
-            // 🔹 2️⃣ PASO 2: Verificar que el archivo de backup exista en el servidor remoto antes de transferirlo
+            // PASO 2: Verificar que el archivo de backup exista en el servidor remoto antes de transferirlo
             String checkBackupCommand = "ssh administrador@40.89.147.152 \"test -f /home/administrador/backup.sql && echo 'Archivo encontrado' || echo 'Archivo no encontrado'\"";
             if (ejecutarComando(checkBackupCommand)) {
-                // 🔹 2️⃣ PASO 2: Transferir el backup a Windows con SCP
+                // PASO 2: Transferir el backup a Windows con SCP
                 String backupLocalPath = "C:\\Users\\Vicent\\IdeaProjects\\GRUPOA_PSP\\backup\\backup.sql";
                 String scpCommand = "scp administrador@40.89.147.152:/home/administrador/backup.sql " + backupLocalPath.replace("\\", "/");
                 System.out.println("Ejecutando: " + scpCommand);
 
                 if (ejecutarComando(scpCommand)) {
-                    System.out.println("✅ Archivo de backup transferido correctamente a: " + backupLocalPath);
+                    System.out.println("Archivo de backup transferido correctamente a: " + backupLocalPath);
                 } else {
-                    System.err.println("❌ Error al transferir el archivo de backup.");
+                    System.err.println("Error al transferir el archivo de backup.");
                 }
             } else {
-                System.err.println("❌ No se encontró el archivo de backup en el servidor remoto.");
+                System.err.println("No se encontró el archivo de backup en el servidor remoto.");
             }
 
         } catch (Exception e) {
