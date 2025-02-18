@@ -1,10 +1,12 @@
 package org.example;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
-public class Servidor implements Runnable{
+public class Servidor implements Runnable {
     private int portServidor;
     private int portClient;
 
@@ -17,51 +19,65 @@ public class Servidor implements Runnable{
     public void run() {
         try {
             byte[] byteARecibir = new byte[1024];
-            DatagramPacket paquet = new DatagramPacket(byteARecibir,byteARecibir.length);
+            DatagramPacket paquet = new DatagramPacket(byteARecibir, byteARecibir.length);
             DatagramSocket socketServidor = new DatagramSocket(portClient);
             socketServidor.receive(paquet);
-            String mensaje = new String(paquet.getData(),0,paquet.getLength(),"UTF-8");
+            String mensaje = new String(paquet.getData(), 0, paquet.getLength(), "UTF-8");
             System.out.println("(Servidor) " + mensaje);
             socketServidor.close();
 
-            /* *** Procces Builder *** */
+            // 🔹 1️⃣ PASO 1: Ejecutar mysqldump en la VM de Azure
+            String sshCommand = "ssh administrador@40.89.147.152 \"mysqldump -u root --password=1234 --databases adt_grupoA > /home/administrador/backup.sql\"";
+            System.out.println("Ejecutando: " + sshCommand);
 
-
-            /*
-
-            ProcessBuilder pb = new ProcessBuilder(
-                "ssh", "usuari@servidor-remot",
-                "mysqldump -u root probagrupoa > /tmp/backup.sql"
-            );
-
-            Process process = pb.start();
-            process.waitFor();
-             */
-            ProcessBuilder pb = new ProcessBuilder(
-                    "C:\\xampp\\mysql\\bin\\mysqldump.exe",  // Cambia según tu ruta
-                    "-h", "localhost",
-                    "-u", "root",
-                    "--protocol=tcp",
-                    "probagrupoa"
-            );
-
-
-            // Redirigir la salida a un archivo en una ruta relativa (carpeta local 'backup')
-            File backupFile = new File("backup/backup.sql");
-            backupFile.getParentFile().mkdirs(); // Crear directorios si no existen
-            pb.redirectOutput(backupFile);
-
-            Process process = pb.start();
-            int exitCode = process.waitFor();
-
-            if (exitCode == 0) {
-                System.out.println("Backup realizado correctamente en: " + backupFile.getAbsolutePath());
+            if (ejecutarComando(sshCommand)) {
+                System.out.println("✅ Backup realizado correctamente en el servidor remoto.");
             } else {
-                System.err.println("Error al realizar el backup. Código de salida: " + exitCode);
+                System.err.println("❌ Error al realizar el backup en el servidor remoto.");
+                return;
+            }
+
+            // 🔹 2️⃣ PASO 2: Verificar que el archivo de backup exista en el servidor remoto antes de transferirlo
+            String checkBackupCommand = "ssh administrador@40.89.147.152 \"test -f /home/administrador/backup.sql && echo 'Archivo encontrado' || echo 'Archivo no encontrado'\"";
+            if (ejecutarComando(checkBackupCommand)) {
+                // 🔹 2️⃣ PASO 2: Transferir el backup a Windows con SCP
+                String backupLocalPath = "C:\\Users\\Vicent\\IdeaProjects\\GRUPOA_PSP\\backup\\backup.sql";
+                String scpCommand = "scp administrador@40.89.147.152:/home/administrador/backup.sql " + backupLocalPath.replace("\\", "/");
+                System.out.println("Ejecutando: " + scpCommand);
+
+                if (ejecutarComando(scpCommand)) {
+                    System.out.println("✅ Archivo de backup transferido correctamente a: " + backupLocalPath);
+                } else {
+                    System.err.println("❌ Error al transferir el archivo de backup.");
+                }
+            } else {
+                System.err.println("❌ No se encontró el archivo de backup en el servidor remoto.");
             }
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+        }
+    }
+
+    private boolean ejecutarComando(String comando) {
+        try {
+            ProcessBuilder pb = new ProcessBuilder("cmd", "/c", comando);
+            pb.redirectErrorStream(true);
+            Process process = pb.start();
+
+            // Leer y mostrar la salida del comando
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+
+            int exitCode = process.waitFor();
+            return exitCode == 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }
