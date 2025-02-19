@@ -1,10 +1,9 @@
 package org.example;
 
 import java.io.*;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Scanner;
 
 
 public class Servidor implements Runnable {
@@ -56,9 +55,27 @@ public class Servidor implements Runnable {
         String scpCommand = "scp administrador@40.89.147.152:/home/administrador/backup.sql " + backupLocalPath.replace("\\", "/");
         if (ejecutarComando(scpCommand)) {
             System.out.println("Transferencia de archivos realizado correctamente en el servidor.");
+            enviarCorreo();
         } else {
             System.err.println("Error al realizar la transferencia de archivos.");
         }
+    }
+    public void enviarCorreo() {
+
+        String nombre = Thread.currentThread().getName();
+        System.out.println(nombre + "Quieres enviarle un correo a alguien? Escribe su correo ('no' para no enviar correo):");
+        Scanner sc = new Scanner(System.in);
+        String correoEscrito = sc.nextLine();
+        String correo = "ssh -T administrador@40.89.147.152 \"echo 'Se ha realizado el backup sin fallos.' | mail -s 'Backup Realizado con Éxito' " + correoEscrito + "\"";
+
+            if (!correoEscrito.equals("no")) {
+                if (ejecutarComando(correo)) {
+                    System.out.println(nombre + "Correo enviado con éxito.");
+                } else {
+                    System.err.println(nombre + "Error enviando el correo.");
+                }
+            }
+
     }
 
     private boolean ejecutarComando(String comando) {
