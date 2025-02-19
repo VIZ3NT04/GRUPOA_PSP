@@ -1,61 +1,63 @@
 package org.example;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.ServerSocket;
+import java.net.Socket;
+
 
 public class Servidor implements Runnable {
-    private int portServidor;
-    private int portClient;
+    private ServerSocket serverSocket;
+    private boolean running = true;
 
-    public Servidor(int portServidor, int portClient) {
-        this.portServidor = portServidor;
-        this.portClient = portClient;
+    public Servidor(int serverPort) throws IOException {
+        this.serverSocket = new ServerSocket(serverPort);
     }
 
     @Override
     public void run() {
+        System.out.println("Servidor iniciado...");
         try {
-            byte[] byteARecibir = new byte[1024];
-            DatagramPacket paquet = new DatagramPacket(byteARecibir, byteARecibir.length);
-            DatagramSocket socketServidor = new DatagramSocket(portClient);
-            socketServidor.receive(paquet);
-            String mensaje = new String(paquet.getData(), 0, paquet.getLength(), "UTF-8");
-            System.out.println("(Servidor) " + mensaje);
-            socketServidor.close();
+            while (running) {
+                Socket socketToClient = serverSocket.accept();
+                DataInputStream fluxIn = new DataInputStream(socketToClient.getInputStream());
+                DataOutputStream fluxOut = new DataOutputStream(socketToClient.getOutputStream());
 
-            // PASO 1: Ejecutar mysqldump en la VM de Azure
-            String sshCommand = "ssh administrador@40.89.147.152 \"mysqldump -u root --password=1234 --databases adt_grupoA > /home/administrador/backup.sql\"";
-            System.out.println("Ejecutando: " + sshCommand);
+                String data = fluxIn.readUTF();
+                System.out.println("Cliente envió: " + data);
 
-            if (ejecutarComando(sshCommand)) {
-                System.out.println("Backup realizado correctamente en el servidor remoto.");
-            } else {
-                System.err.println("Error al realizar el backup en el servidor remoto.");
-                return;
-            }
-
-            // PASO 2: Verificar que el archivo de backup exista en el servidor remoto antes de transferirlo
-            String checkBackupCommand = "ssh administrador@40.89.147.152 \"test -f /home/administrador/backup.sql && echo 'Archivo encontrado' || echo 'Archivo no encontrado'\"";
-            if (ejecutarComando(checkBackupCommand)) {
-                // PASO 2: Transferir el backup a Windows con SCP
-                String backupLocalPath = "C:\\Users\\Vicent\\IdeaProjects\\GRUPOA_PSP\\backup\\backup.sql";
-                String scpCommand = "scp administrador@40.89.147.152:/home/administrador/backup.sql " + backupLocalPath.replace("\\", "/");
-                System.out.println("Ejecutando: " + scpCommand);
-
-                if (ejecutarComando(scpCommand)) {
-                    System.out.println("Archivo de backup transferido correctamente a: " + backupLocalPath);
+                if ("backup".equalsIgnoreCase(data)) {
+                    realizarBackup();
+                    fluxOut.writeUTF("Backup completado");
+                } else if ("exit".equalsIgnoreCase(data)) {
+                    fluxOut.writeUTF("Cerrando servidor...");
+                    running = false;
                 } else {
-                    System.err.println("Error al transferir el archivo de backup.");
+                    fluxOut.writeUTF("Comando no reconocido");
                 }
-            } else {
-                System.err.println("No se encontró el archivo de backup en el servidor remoto.");
-            }
 
+                socketToClient.close();
+            }
+            serverSocket.close();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void realizarBackup() {
+        String sshCommand = "ssh administrador@40.89.147.152 \"mysqldump -u root --password=1234 --databases adt_grupoA > /home/administrador/backup.sql\"";
+        if (ejecutarComando(sshCommand)) {
+            System.out.println("Backup realizado correctamente en el servidor remoto.");
+        } else {
+            System.err.println("Error al realizar el backup.");
+        }
+        String backupLocalPath = "C:\\Users\\Vicent\\IdeaProjects\\GRUPOA_PSP\\backup\\backup.sql";
+        String scpCommand = "scp administrador@40.89.147.152:/home/administrador/backup.sql " + backupLocalPath.replace("\\", "/");
+        if (ejecutarComando(scpCommand)) {
+            System.out.println("Transferencia de archivos realizado correctamente en el servidor.");
+        } else {
+            System.err.println("Error al realizar la transferencia de archivos.");
         }
     }
 

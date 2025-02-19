@@ -35,7 +35,7 @@ CREATE TABLE `categoria` (
   `description` varchar(255) NOT NULL,
   `name` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -44,7 +44,7 @@ CREATE TABLE `categoria` (
 
 LOCK TABLES `categoria` WRITE;
 /*!40000 ALTER TABLE `categoria` DISABLE KEYS */;
-INSERT INTO `categoria` VALUES (1,'Articulos que utilizan algun motor de combustion','Motor');
+INSERT INTO `categoria` VALUES (1,'Articulos que utilizan algun motor de combustion','Motor'),(2,'Articulos que utilizan algun motor de combustion','clase');
 /*!40000 ALTER TABLE `categoria` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -62,7 +62,7 @@ CREATE TABLE `foto` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `UKh2tmp56onjuf25p2186khs7v1` (`producto_id`),
   CONSTRAINT `FKomlrc9y9utqxavpbjk1yocuef` FOREIGN KEY (`producto_id`) REFERENCES `producto` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -71,6 +71,7 @@ CREATE TABLE `foto` (
 
 LOCK TABLES `foto` WRITE;
 /*!40000 ALTER TABLE `foto` DISABLE KEYS */;
+INSERT INTO `foto` VALUES (1,'http://api.grupoa.com:8080/MyApp/uploads/1739918834492_cuenta-android.png',5),(2,'http://api.grupoa.com:8080/MyApp/uploads/1739919601606_upload_resized.jpg',10),(4,'http://api.grupoa.com:8080/MyApp/uploads/1739920125898_upload_resized.jpg',11);
 /*!40000 ALTER TABLE `foto` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -98,7 +99,7 @@ CREATE TABLE `producto` (
   CONSTRAINT `FK4f8g2yvj0uj7hqxlauy8p8k39` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id`),
   CONSTRAINT `FKydg56fw3q3f2lfcvtpkt36ls` FOREIGN KEY (`categoria`) REFERENCES `categoria` (`id`),
   CONSTRAINT `producto_chk_1` CHECK ((`price` >= 0))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -107,6 +108,7 @@ CREATE TABLE `producto` (
 
 LOCK TABLES `producto` WRITE;
 /*!40000 ALTER TABLE `producto` DISABLE KEYS */;
+INSERT INTO `producto` VALUES (1,'5 years','ODOO',NULL,NULL,'PC Gamming',0,2,11,NULL),(2,'5 years','ODOO',NULL,NULL,'PC BBBBBBBBBBBBB',0,2,11,NULL),(3,'aaaa','aaaa',NULL,NULL,'aaa',2222,1,19,NULL),(4,'aaaa','aaaa',NULL,NULL,'aaaa',232,1,19,NULL),(5,'2 years','cadira',NULL,NULL,'silla',39,1,19,NULL),(6,'jj','oso',NULL,NULL,'Impresora ',64,2,8,NULL),(7,'vdvsb','vdvsh',NULL,NULL,'hshsh',39,1,8,NULL),(8,'vdvsb','vdvsh',NULL,NULL,'hshsh',39,1,8,NULL),(9,'bdvzb','vdvsbsbnv',NULL,NULL,'hdhsh',69,1,8,NULL),(10,'bdvzb','vdvsbsbnv',NULL,NULL,'hdhsh',69,1,8,NULL),(11,'3 anys','cane',NULL,NULL,'canela',2000,1,19,NULL);
 /*!40000 ALTER TABLE `producto` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -126,7 +128,7 @@ CREATE TABLE `usuario` (
   `imagen` longblob,
   `poblacion` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -135,7 +137,7 @@ CREATE TABLE `usuario` (
 
 LOCK TABLES `usuario` WRITE;
 /*!40000 ALTER TABLE `usuario` DISABLE KEYS */;
-INSERT INTO `usuario` VALUES (1,_binary '\0','vicentbenavent2005@gmail.com','Vicent','1234556788aaa',NULL,'Aiacor'),(5,_binary '\0','jonathan@gmail.com','sahhsuaks','1234556778a',NULL,'Aiacor'),(7,_binary '\0','vicentbenavent2005@gmail.com','Vicent','1234556788aaa',NULL,'Aiacor'),(8,_binary '\0','lucia@gmail.com','Lucia','12345678o',NULL,'Aiacor'),(9,_binary '\0','jaume@gmail.com','jaume','12344321a',NULL,'Llosa '),(11,_binary '\0','vicentbenavent2005@gmail.com','Vicent','1234556788aaa',NULL,'Aiacor'),(15,_binary '\0','jaumetuset@gmail.com','jaume','12345654asdasd',NULL,'toledo'),(16,_binary '\0','pererarpa2@gmail.com','peprer','123456789012asdasd',NULL,'teruel'),(17,_binary '\0','vicentebosque@gmail.com','vicenta','vicentebosque1234',NULL,'toledo');
+INSERT INTO `usuario` VALUES (1,_binary '\0','viaaaaaaaaaaaacentbena005@gmail.com','Vicent','1234556788aaa',NULL,'Aiacor'),(5,_binary '\0','viaaaaaaaaaaaaaaacentbena005@gmail.com','Vicent','1234556788aaa',NULL,'Aiacor'),(7,_binary '\0','vicentbenavent2005@gmail.com','Vicent','1234556788aaa',NULL,'Aiacor'),(8,_binary '\0','lucia@gmail.com','Lucia','12345678o',NULL,'Aiacor'),(9,_binary '\0','jaume@gmail.com','jaume','12344321a',NULL,'Llosa '),(11,_binary '\0','vicentbenavent2005@gmail.com','Vicent','1234556788aaa',NULL,'Aiacor'),(15,_binary '\0','jaumetuset@gmail.com','jaume','12345654asdasd',NULL,'toledo'),(16,_binary '\0','pererarpa2@gmail.com','peprer','123456789012asdasd',NULL,'teruel'),(17,_binary '\0','vicentebosque@gmail.com','vicenta','vicentebosque1234',NULL,'toledo'),(18,_binary '\0','viaaaaaaaaaaaaaaaaaacentbena005@gmail.com','Vicent','1234556788aaa',NULL,'Aiacor'),(19,_binary '\0','canela@gmail.com','canela','123456678a',NULL,'koko');
 /*!40000 ALTER TABLE `usuario` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -148,4 +150,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-02-18 10:27:20
+-- Dump completed on 2025-02-19  8:01:36
